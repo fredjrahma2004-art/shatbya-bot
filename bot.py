@@ -5,16 +5,16 @@ TOKEN = "8166656056:AAE8xNDpBcjUJ3D1II0twNyV7goQiyYKOhIo"
 
 
 async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
-  if update.message.audio:
-    file_id = update.message.audio.file_id
+  if update.message.document:
+    file_id = update.message.document.file_id
     await update.message.reply_text(
-        f"معرّف الصوت هو:\n`{file_id}`", parse_mode="Markdown"
+        f"معرّف الملف هو:\n`{file_id}`", parse_mode="Markdown"
     )
 
 
 def main():
   application = Application.builder().token(TOKEN).build()
-  application.add_handler(MessageHandler(filters.AUDIO, get_file_id))
+  application.add_handler(MessageHandler(filters.Document.ALL, get_file_id))
   application.run_polling()
 
 
