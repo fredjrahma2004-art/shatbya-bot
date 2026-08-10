@@ -1,3 +1,5 @@
+from flask import Flask
+from threading import Thread
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
@@ -162,3 +164,14 @@ if __name__ == '__main__':
     
     print("البوت يعمل الآن بكامل قوائم تحفة الأطفال...")
     application.run_polling()
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Bot is alive"
+
+def run():
+    app.run(host='0.0.0.0', port=10000)
+
+t = Thread(target=run)
+t.start()
