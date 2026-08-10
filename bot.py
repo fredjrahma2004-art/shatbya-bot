@@ -87,11 +87,11 @@ FILE_IDS = {
     "b3_lesson_12": "CQACAgIAAxkBAAPzannDwW-8jd8IbotuOVYpsFzcmQ4AAjSQAAJpI9BKSiGa2-6lqN89BA"
 }
 
-# 1. أمر البداية (يعرض زر تحفة الأطفال)
+# 1. أمر البداية (ترحيب عام لكل طالبات المقرأة)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("أهلاً بكِ يا رحمة في مقرأة الشّاطبية 🌸\nاضغطي على الزر أدناه للبدء:", reply_markup=reply_markup)
+    await update.message.reply_text("أهلاً بكِ في مقرأة الشّاطبية 🌸\nاضغطي على الزر أدناه للبدء:", reply_markup=reply_markup)
 
 # 2. معالج الأزرار والقوائم المتداخلة
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
