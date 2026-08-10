@@ -2,7 +2,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 
 # توكن البوت الخاص بكِ
-TOKEN = "8166656056:AAE8xNDpBcjUJ3D1II0twNyV7goQiyYKOhIo"
+TOKEN = "8166656056:AAE6DU8y_ju-esPYQBLb40Qfc-yFJKoSeZw"
+
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
