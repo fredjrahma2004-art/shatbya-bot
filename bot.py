@@ -1,8 +1,9 @@
-from flask import Flask
-from threading import Thread
+import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
+from flask import Flask
+from threading import Thread
 
 TOKEN = "8166656056:AAE6DU8y_ju-esPYQBLb40Qfc-yFJKoSeZw"
 
@@ -89,6 +90,21 @@ FILE_IDS = {
     "b3_lesson_12": "CQACAgIAAxkBAAPzannDwW-8jd8IbotuOVYpsFzcmQ4AAjSQAAJpI9BKSiGa2-6lqN89BA"
 }
 
+# --- كود إبقاء البوت شغالاً 24 ساعة (خادم ويب وهمي) ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive and running 24/7!"
+
+def run_web():
+    app.run(host='0.0.0.0', port=10000)
+
+def keep_alive():
+    t = Thread(target=run_web)
+    t.start()
+# --------------------------------------------------
+
 # 1. أمر البداية (ترحيب عام لكل طالبات المقرأة)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")]]
@@ -157,21 +173,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_voice(chat_id=chat_id, voice=file_id, caption=f"🎧 التسجيل الصوتي {lesson_num} (الكتاب {book_num})")
 
 if __name__ == '__main__':
+    # تشغيل خادم الويب في الخلفية أولاً لضمان عدم توقف البوت
+    keep_alive()
+    
     application = ApplicationBuilder().token(TOKEN).build()
     
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CallbackQueryHandler(button_handler))
     
-    print("البوت يعمل الآن بكامل قوائم تحفة الأطفال...")
+    print("البوت يعمل الآن بكامل قوائم تحفة الأطفال على مدار 24 ساعة...")
     application.run_polling()
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return "Bot is alive"
-
-def run():
-    app.run(host='0.0.0.0', port=10000)
-
-t = Thread(target=run)
-t.start()
