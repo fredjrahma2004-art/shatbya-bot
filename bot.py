@@ -1,4 +1,3 @@
-import os
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
@@ -12,12 +11,12 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# --- كود إبقاء البوت شغالاً 24 ساعة (خادم ويب وهمي) ---
+# --- خادم الويب الوهمي لإبقاء البوت شغالاً ---
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "Bot is alive and running 24/7!"
+    return "Bot is alive!"
 
 def run_web():
     app.run(host='0.0.0.0', port=10000)
@@ -25,23 +24,22 @@ def run_web():
 def keep_alive():
     t = Thread(target=run_web)
     t.start()
-# --------------------------------------------------
+# ---------------------------------------------
 
-# 1. عند الضغط على أمر البدء /start
+# دالة أمر البدء /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "أهلاً بكِ يا رحمة 🌸\n\n"
-        "حسناً، تم تفعيل وضع استخراج المعرفات.\n"
-        "الآن، قومي بإرسال أو تحويل تسجيلات الدروس (أو الملفات) إلى هنا، وسأرسل لكِ معرف كل تسجيل (`file_id`) فوراً لتقومي بنسخه!"
+        "تم استلام أمر البدء بنجاح!\n"
+        "الآن أرسلي أو حولي لي أي تسجيل صوتي أو ملف، وسأرسل لكِ المعرف الخاص به فوراً."
     )
 
-# 2. استقبال التسجيلات والملفات وإرسال المعرفات الخاصة بها
+# دالة استقبال الملفات وإرجاع المعرف
 async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     file_id = None
     file_type = ""
 
-    # التحقق من نوع الملف المرسل
     if message.voice:
         file_id = message.voice.file_id
         file_type = "تسجيل صوتي (Voice)"
@@ -50,33 +48,24 @@ async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
         file_type = "ملف صوتي (Audio)"
     elif message.document:
         file_id = message.document.file_id
-        file_type = "مستند/ملف PDF (Document)"
-    elif message.video:
-        file_id = message.video.file_id
-        file_type = "فيديو (Video)"
+        file_type = "ملف/مستند (Document)"
 
     if file_id:
-        # الرد في المحادثة مباشرة بنص الـ file_id لسهولة النسخ
-        response_text = (
-            f"✅ **تم استخراج المعرف بنجاح!**\n"
-            f"📂 النوع: {file_type}\n\n"
-            f"🔹 انسخي هذا المعرف:\n"
-            f"`{file_id}`"
-        )
-        await message.reply_text(response_text, parse_mode="Markdown")
+        await message.reply_text(f"📂 **نوع الملف:** {file_type}\n\n🔹 **المعرف (انسخيه):**\n`{file_id}`", parse_mode="Markdown")
     else:
-        await message.reply_text("عذراً، لم أتمكن من قراءة هذا الملف. تأكدي من إرساله كـ تسجيل صوتي أو ملف.")
+        await message.reply_text("عذراً، لم أتعرف على الملف. أرسليه كـ تسجيل صوتي أو ملف.")
+
+def main():
+    # بناء التطبيق بالطريقة الصحيحة للنسخ الحديثة
+    application = ApplicationBuilder().token(TOKEN).build()
+
+    # إضافة المعالجات
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, get_file_id))
+
+    print("البوت يعمل الآن ومستعد لاستقبال الأوامر والتسجيلات...")
+    application.run_polling()
 
 if __name__ == '__main__':
     keep_alive()
-    
-    application = ApplicationBuilder().token(TOKEN).build()
-    
-    # معالج أمر /start
-    application.add_handler(CommandHandler('start', start))
-    
-    # معالج استقبال التسجيلات والملفات
-    application.add_handler(MessageHandler(filters.AUDIO | filters.VOICE | filters.DOCUMENT | filters.VIDEO, get_file_id))
-    
-    print("البوت جاهز ويستقبل التسجيلات الآن...")
-    application.run_polling()
+    main()
