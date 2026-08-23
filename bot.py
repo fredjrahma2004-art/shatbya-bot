@@ -1,7 +1,7 @@
 import os
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from flask import Flask
 from threading import Thread
 
@@ -27,15 +27,15 @@ def keep_alive():
     t.start()
 # --------------------------------------------------
 
-# 1. أمر البداية
+# 1. عند الضغط على أمر البدء /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "أهلاً بكِ يا رحمة 🌸\n"
-        "هذا وضع استخراج المعرفات.\n"
-        "قومي بإرسال أو تحويل أي تسجيل صوتي أو ملف PDF إلى هنا، وسأعطيكِ الـ (file_id) الخاص به فوراً!"
+        "أهلاً بكِ يا رحمة 🌸\n\n"
+        "حسناً، تم تفعيل وضع استخراج المعرفات.\n"
+        "الآن، قومي بإرسال أو تحويل تسجيلات الدروس (أو الملفات) إلى هنا، وسأرسل لكِ معرف كل تسجيل (`file_id`) فوراً لتقومي بنسخه!"
     )
 
-# 2. وظيفة التقاط المعرفات تلقائياً عند إرسال الملفات
+# 2. استقبال التسجيلات والملفات وإرسال المعرفات الخاصة بها
 async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     file_id = None
@@ -56,32 +56,27 @@ async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
         file_type = "فيديو (Video)"
 
     if file_id:
-        # طباعة المعرف في الكونسول للتأكد
-        print(f"\n--- تم استخراج معرف جديد ({file_type}) ---")
-        print(file_id)
-        print("-----------------------------------------\n")
-        
-        # الرد في المحادثة مباشرة لسهولة النسخ
+        # الرد في المحادثة مباشرة بنص الـ file_id لسهولة النسخ
         response_text = (
-            f"✅ تم التعرف على الملف بنجاح!\n"
+            f"✅ **تم استخراج المعرف بنجاح!**\n"
             f"📂 النوع: {file_type}\n\n"
-            f"🔹 معرف الملف (انسخي ما بين القوسين):\n"
+            f"🔹 انسخي هذا المعرف:\n"
             f"`{file_id}`"
         )
         await message.reply_text(response_text, parse_mode="Markdown")
     else:
-        await message.reply_text("عذراً، لم أتمكن من العثور على معرف لهذا الملف. تأكدي من إرساله كملف صوتي أو مستند.")
+        await message.reply_text("عذراً، لم أتمكن من قراءة هذا الملف. تأكدي من إرساله كـ تسجيل صوتي أو ملف.")
 
 if __name__ == '__main__':
     keep_alive()
     
     application = ApplicationBuilder().token(TOKEN).build()
     
-    # أوامر البوت
+    # معالج أمر /start
     application.add_handler(CommandHandler('start', start))
     
-    # هذا المعالج يلتقط أي ملف يتم إرساله للبوت (صوت، مستند، إلخ)
+    # معالج استقبال التسجيلات والملفات
     application.add_handler(MessageHandler(filters.AUDIO | filters.VOICE | filters.DOCUMENT | filters.VIDEO, get_file_id))
     
-    print("البوت يعمل الآن في وضع استخراج المعرفات...")
+    print("البوت جاهز ويستقبل التسجيلات الآن...")
     application.run_polling()
