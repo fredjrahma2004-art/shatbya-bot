@@ -150,7 +150,7 @@ def keep_alive():
     t.start()
 # --------------------------------------------------
 
-# 1. أمر البداية (القائمة الرئيسية: السيرة النبوية + تحفة الأطفال)
+# 1. أمر البداية
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
@@ -167,7 +167,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data
     chat_id = query.message.chat_id
     
-    # --- قسم السيرة النبوية (40 درساً مع التكملات) ---
+    # --- قائمة السيرة النبوية الرئيسية ---
     if data == "seera_menu":
         keyboard = [
             [InlineKeyboardButton("🎧 الدرس 1", callback_data="seera_1")],
@@ -224,7 +224,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="أهلاً بكِ مجدداً في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
 
-    # --- القائمة الرئيسية لمتن تحفة الأطفال (الكتب الثلاثة) ---
+    # --- قائمة تحفة الأطفال ---
     elif data == "tuhafa_menu":
         keyboard = [
             [InlineKeyboardButton("📖 فتح الأقفال", callback_data="book_1")],
@@ -235,7 +235,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="اختر الكتاب المطلوب من تحفة الأطفال:", reply_markup=reply_markup)
         
-    # محتويات الكتاب الأول: فتح الأقفال (19 درس)
+    # محتويات الكتاب الأول
     elif data == "book_1":
         keyboard = [[InlineKeyboardButton("📄 كتاب فتح الأقفال (PDF)", callback_data="book_1_pdf")]]
         for i in range(1, 20):
@@ -244,7 +244,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="محتويات كتاب فتح الأقفال:", reply_markup=reply_markup)
 
-    # محتويات الكتاب الثاني: منحة ذي الجلال (35 درس)
+    # محتويات الكتاب الثاني
     elif data == "book_2":
         keyboard = [[InlineKeyboardButton("📄 كتاب منحة ذي الجلال (PDF)", callback_data="book_2_pdf")]]
         for i in range(1, 36):
@@ -253,7 +253,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="محتويات كتاب منحة ذي الجلال:", reply_markup=reply_markup)
 
-    # محتويات الكتاب الثالث: فتح الملك المتعال (12 درس)
+    # محتويات الكتاب الثالث
     elif data == "book_3":
         keyboard = [[InlineKeyboardButton("📄 كتاب فتح الملك المتعال (PDF)", callback_data="book_3_pdf")]]
         for i in range(1, 13):
@@ -262,24 +262,31 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="محتويات كتاب فتح الملك المتعال:", reply_markup=reply_markup)
         
-    # إرسال الملفات أو التسجيلات الصوتية مباشرة داخل المحادثة
+    # معالجة إرسال الملفات أو التسجيلات بناءً على مطابقتها لـ FILE_IDS
     elif data in FILE_IDS:
         file_id = FILE_IDS[data]
+        
+        # إذا كان الملف PDF
         if "pdf" in data:
             book_names = {
                 "book_1_pdf": "كتاب فتح الأقفال",
                 "book_2_pdf": "كتاب منحة ذي الجلال",
                 "book_3_pdf": "كتاب فتح الملك المتعال"
             }
-            await context.bot.send_document(chat_id=chat_id, document=file_id, caption=f"📖 تفضلي {book_names[data]}")
+            await context.bot.send_document(chat_id=chat_id, document=file_id, caption=f"📖 تفضلي {book_names.get(data, 'الكتاب')}")
+        
+        # إذا كان من دروس السيرة النبوية (يبدأ بـ seera_)
         elif data.startswith("seera_"):
             if "takmela" in data:
+                # استخراج رقم الدرس من صيغة مثل seera_21_takmela
                 d_num = data.replace("seera_", "").replace("_takmela", "")
                 caption_text = f"📜 السيرة النبوية - تكملة الدرس {d_num}"
             else:
                 d_num = data.replace("seera_", "")
                 caption_text = f"📜 السيرة النبوية - الدرس {d_num}"
             await context.bot.send_voice(chat_id=chat_id, voice=file_id, caption=caption_text)
+        
+        # إذا كان من دروس تحفة الأطفال (الكتب الثلاثة)
         else:
             parts = data.split("_")
             book_num = parts[0].replace("b", "")
@@ -287,7 +294,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_voice(chat_id=chat_id, voice=file_id, caption=f"🎧 التسجيل الصوتي {lesson_num} (الكتاب {book_num})")
 
 if __name__ == '__main__':
-    # تشغيل خادم الويب في الخلفية أولاً لضمان عدم توقف البوت
     keep_alive()
     
     application = ApplicationBuilder().token(TOKEN).build()
