@@ -160,7 +160,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
         [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")],
-        [InlineKeyboardButton("💬 تواصل مع الإدارة / المعلمة", callback_data="contact_admin")]
+        [InlineKeyboardButton("💬 تواصل مع الإدارة", callback_data="contact_admin")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("أهلاً بكِ في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
@@ -269,7 +269,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
             [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")],
-            [InlineKeyboardButton("💬 تواصل مع الإدارة / المعلمة", callback_data="contact_admin")]
+            [InlineKeyboardButton("💬 تواصل مع الإدارة", callback_data="contact_admin")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="أهلاً بكِ مجدداً في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
@@ -352,5 +352,5 @@ if __name__ == '__main__':
     application.add_handler(CallbackQueryHandler(contact_admin_start, pattern="^contact_admin$"))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_message_to_admin))
     
-    print("البوت يعمل الآن بالأزرار الثلاثة وميزة التواصل الجديدة...")
+    print("البوت يعمل الآن...")
     application.run_polling()
