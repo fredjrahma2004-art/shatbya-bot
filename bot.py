@@ -1,11 +1,14 @@
 import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from flask import Flask
 from threading import Thread
 
 TOKEN = "8166656056:AAE6DU8y_ju-esPYQBLb40Qfc-yFJKoSeZw"
+
+# آيدي مجموعة المشرفات الصحيح
+GROUP_CHAT_ID = -1002004110720  
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -152,16 +155,51 @@ def keep_alive():
     t.start()
 # --------------------------------------------------
 
-# 1. أمر البداية (يعرض أيقونتين رئيسيتين: تحفة الأطفال والسيرة النبوية)
+# 1. أمر البداية (يعرض الأزرار الثلاثة الرئيسية)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
-        [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")]
+        [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")],
+        [InlineKeyboardButton("💬 تواصل مع الإدارة / المعلمة", callback_data="contact_admin")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("أهلاً بكِ في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
 
-# 2. معالج الأزرار والقوائم المتداخلة
+# 2. دالة تشغيل التواصل عند الضغط على الزر
+async def contact_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    await query.message.reply_text(
+        "أهلاً وسهلاً بكِ غاليتي 🌸\nأكتبي استفساركِ أو سؤالكِ الآن:"
+    )
+    # تفعيل حالة انتظار رسالة الطالبة
+    context.user_data['waiting_for_message'] = True
+
+# 3. معالج رسائل الطالبات وإرسالها لمجموعة المشرفات
+async def forward_message_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get('waiting_for_message', False):
+        user = update.message.from_user
+        user_message = update.message.text
+        
+        group_text = (
+            "📩 **استفسار جديد من طالبة عبر البوت:**\n\n"
+            f"👤 **اسم الطالبة:** {user.full_name}\n"
+            f"🔗 **المعرف:** @{user.username if user.username else 'لا يوجد'}\n"
+            f"🆔 **الآيدي:** `{user.id}`\n\n"
+            f"💬 **الرسالة:**\n{user_message}"
+        )
+        
+        try:
+            await context.bot.send_message(chat_id=GROUP_CHAT_ID, text=group_text, parse_mode="Markdown")
+            await update.message.reply_text("✅ تم إرسال رسالتكِ إلى المشرفات بنجاح، جزاكِ الله خيراً وسيتم الرد عليكِ قريباً 🌸")
+        except Exception as e:
+            await update.message.reply_text("⚠️ حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة لاحقاً.")
+            print(f"Error forwarding message to group: {e}")
+            
+        context.user_data['waiting_for_message'] = False
+
+# 4. معالج الأزرار والقوائم المتداخلة
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -169,7 +207,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data
     chat_id = query.message.chat_id
     
-    # --- القائمة الرئيسية للسيرة النبوية (تحتوي على خيارين: كتاب السيرة PDF والدروس الصوتية) ---
+    # --- القائمة الرئيسية للسيرة النبوية ---
     if data == "seera_menu":
         keyboard = [
             [InlineKeyboardButton("📄 كتاب السيرة النبوية (PDF)", callback_data="seera_pdf")],
@@ -230,7 +268,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data == "main_menu":
         keyboard = [
             [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
-            [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")]
+            [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")],
+            [InlineKeyboardButton("💬 تواصل مع الإدارة / المعلمة", callback_data="contact_admin")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="أهلاً بكِ مجدداً في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
@@ -277,7 +316,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data in FILE_IDS:
         file_id = FILE_IDS[data]
         
-        # إذا كان ملف PDF (سواء كتاب السيرة أو كتب تحفة الأطفال)
         if "pdf" in data:
             if data == "seera_pdf":
                 await context.bot.send_document(chat_id=chat_id, document=file_id, caption="📖 تفضلي كتاب السيرة النبوية (PDF)")
@@ -289,7 +327,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 }
                 await context.bot.send_document(chat_id=chat_id, document=file_id, caption=f"📖 تفضلي {book_names.get(data, 'الكتاب')}")
         
-        # إذا كان من دروس السيرة النبوية (يبدأ بـ seera_)
         elif data.startswith("seera_"):
             if "takmela" in data:
                 d_num = data.replace("seera_", "").replace("_takmela", "")
@@ -299,7 +336,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 caption_text = f"📜 السيرة النبوية - الدرس {d_num}"
             await context.bot.send_voice(chat_id=chat_id, voice=file_id, caption=caption_text)
         
-        # إذا كان من دروس تحفة الأطفال (الكتب الثلاثة)
         else:
             parts = data.split("_")
             book_num = parts[0].replace("b", "")
@@ -312,7 +348,9 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(TOKEN).build()
     
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CallbackQueryHandler(button_handler))
+    application.add_handler(CallbackQueryHandler(button_handler, pattern="^(?!contact_admin$).*"))
+    application.add_handler(CallbackQueryHandler(contact_admin_start, pattern="^contact_admin$"))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_message_to_admin))
     
-    print("البوت يعمل الآن بالهيكل الجديد للسيرة النبوية وتحفة الأطفال على مدار 24 ساعة...")
+    print("البوت يعمل الآن بالأزرار الثلاثة وميزة التواصل الجديدة...")
     application.run_polling()
