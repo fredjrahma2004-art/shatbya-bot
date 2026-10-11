@@ -6,8 +6,6 @@ from flask import Flask
 from threading import Thread
 
 TOKEN = "8166656056:AAE6DU8y_ju-esPYQBLb40Qfc-yFJKoSeZw"
-
-# آيدي مجموعة المشرفات الصحيح
 GROUP_CHAT_ID = -1002004110720  
 
 logging.basicConfig(
@@ -15,7 +13,6 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# جدول معرفات الملفات الكامل
 FILE_IDS = {
     "seera_pdf": "BQACAgQAAxkBAAICPWqL0NqcoYoRkEhFXJrL9heiSQ1lAAJRHAACsxSxUg_Jxp4rTzjiPQQ",
     "book_1_pdf": "BQACAgIAAxkBAAN3anm0vFpU9DdtE7CIxsBTUZ8zur0AAtunAAIRI1hLNEyoGg-SS9o9BA",
@@ -38,7 +35,6 @@ FILE_IDS = {
     "b1_lesson_17": "CQACAgIAAxkBAAOIanm0vPFzhI2nmkF3SNivPZpqXTYAApqCAAJgsyFJrC_vy_TMBYw9BA",
     "b1_lesson_18": "CQACAgIAAxkBAAOJanm0vMxrL5pVzJEIEusYkgRAcDQAAveSAAJ3mhlJ2jbIURWoG-89BA",
     "b1_lesson_19": "CQACAgIAAxkBAAOKanm0vPwgh5A7-B81kZudW5wjURYAAi-OAAK9XxlJy0j2r0nO7dw9BA",
-
     "book_2_pdf": "BQACAgQAAxkBAAPDannDwblPwsBVcYDWZENzrG5BIbcAAg4MAAJiF8lQEUOvW6-XrGk9BA",
     "b2_lesson_1": "CQACAgIAAxkBAAPEannDwQ6AAAFo8Yq6iJT7xhFK27-cAAIhkwACd5oZSQElzghzAAFJiz0E",
     "b2_lesson_2": "CQACAgIAAxkBAAPFannDwWVDwMZHylwW7fn7_j6JYGQAAgmNAALkuhlJH_t1wgNd8x09BA",
@@ -75,7 +71,6 @@ FILE_IDS = {
     "b2_lesson_33": "CQACAgIAAxkBAAPkannDwd7-XGZl0bqGO-E228xjaRMAAvKKAALtviBJWg31cI0YMEo9BA",
     "b2_lesson_34": "CQACAgIAAxkBAAPlannDwSKouFCDrE5okuS2dtg7HxUAAl-HAAL86RhJinbzszkrQ5E9BA",
     "b2_lesson_35": "CQACAgIAAxkBAAPmannDwVNEmopHtyEWbCEQ2cJbcZgAAgqPAAK9XxlJvB4KnaNA_1w9BA",
-
     "book_3_pdf": "BQACAgQAAxkBAAPnannDwZlQWUF3E72SbR_61ZyL_swAAgsMAAJiF8lQFFfBSJad3YA9BA",
     "b3_lesson_1": "CQACAgIAAxkBAAPoannDwRAJjWRRiiGgpZS2_Z9rNWoAAuOiAAIJjNFKgaxLoE9IxUo9BA",
     "b3_lesson_2": "CQACAgIAAxkBAAPpannDwSoghP4sT83x35ADSGd1AsIAAkapAAIJjNFKR4byK7kihng9BA",
@@ -89,7 +84,6 @@ FILE_IDS = {
     "b3_lesson_10": "CQACAgIAAxkBAAPxannDwaDFMkDp6isVklxnB7HUnL8AAq6YAAIn59BKHHY_4Rm1F7A9BA",
     "b3_lesson_11": "CQACAgIAAxkBAAPyannDwae9DiMNc72JC-j8wEv8tHgAAr-YAAIn59BK5uxb3dNSWWM9BA",
     "b3_lesson_12": "CQACAgIAAxkBAAPzannDwW-8jd8IbotuOVYpsFzcmQ4AAjSQAAJpI9BKSiGa2-6lqN89BA",
-
     "seera_1": "CQACAgIAAxkBAAIBz2qLC47A2K4YS7_zf7vGBX97gl_fAAJmmwAC9ZrISqvv_uvafkIkPQQ",
     "seera_2": "CQACAgIAAxkBAAIB0GqLC44wpIYuN1BR809sHmY8Ia0eAAJbnQACcOv5SoXGax_RU-4SPQQ",
     "seera_3": "CQACAgIAAxkBAAIB0WqLC46F1iF60EqVzuleJwh60mDuAAL8nAACtNwAAUsxwId3kZx60j0E",
@@ -134,7 +128,6 @@ FILE_IDS = {
     "seera_40": "CQACAgIAAxkBAAICFWqLC9k_jOyn2DtsY7TCPpEwbD17AAJnngACJ4f5S5XA1KBI-M-iPQQ"
 }
 
-# --- خادم الويب للإبقاء على البوت يعمل 24 ساعة ---
 app = Flask('')
 
 @app.route('/')
@@ -147,12 +140,9 @@ def run_web():
 def keep_alive():
     t = Thread(target=run_web)
     t.start()
-# --------------------------------------------------
 
-# 1. أمر البداية
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['waiting_for_message'] = False
-    
     keyboard = [
         [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
         [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")],
@@ -161,8 +151,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("أهلاً بكِ في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
 
-# 2. معالج رسائل الطالبات (يستقبل الاستفسار فقط إذا كانت الحالة مفعلة)
-async def forward_message_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get('waiting_for_message', False):
         user = update.message.from_user
         user_message = update.message.text
@@ -180,28 +169,24 @@ async def forward_message_to_admin(update: Update, context: ContextTypes.DEFAULT
             await update.message.reply_text("✅ تم إرسال رسالتكِ إلى المشرفات بنجاح، جزاكِ الله خيراً وسيتم الرد عليكِ قريباً 🌸")
         except Exception as e:
             await update.message.reply_text("⚠️ حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة لاحقاً.")
-            print(f"Error forwarding message to group: {e}")
+            print(f"Error forwarding message: {e}")
             
         context.user_data['waiting_for_message'] = False
 
-# 3. معالج الأزرار الموحد (يعالج كل الأزرار بدقة واستجابة فورية)
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()  # استجابة سريعة لفك تجميد الزر فوراً
+    await query.answer()
     
     data = query.data
     chat_id = query.message.chat_id
     
-    # إذا ضغطت على زر التواصل
     if data == "contact_admin":
         context.user_data['waiting_for_message'] = True
-        await query.message.reply_text("أهلاً وسهلاً بكِ غاليتي 🌸\nأكتبي استفساركِ أو سؤالكِ الآن:")
+        await context.bot.send_message(chat_id=chat_id, text="أهلاً وسهلاً بكِ غاليتي 🌸\nأكتبي استفساركِ أو سؤالكِ الآن:")
         return
 
-    # لأي زر آخر، نلغي حالة انتظار الرسالة ونتابع التصفح طبيعياً
     context.user_data['waiting_for_message'] = False
 
-    # --- القائمة الرئيسية للسيرة النبوية ---
     if data == "seera_menu":
         keyboard = [
             [InlineKeyboardButton("📄 كتاب السيرة النبوية (PDF)", callback_data="seera_pdf")],
@@ -209,9 +194,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("⬅️ رجوع للقائمة الرئيسية", callback_data="main_menu")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="📜 **قسم السيرة النبوية:**\nاختر ما تحتاجه أدناه:", reply_markup=reply_markup, parse_mode="Markdown")
+        await context.bot.send_message(chat_id=chat_id, text="📜 **قسم السيرة النبوية:**\nاختر ما تحتاجه أدناه:", reply_markup=reply_markup, parse_mode="Markdown")
 
-    # --- قائمة الدروس الصوتية للسيرة النبوية ---
     elif data == "seera_audio_list":
         keyboard = [
             [InlineKeyboardButton("🎧 الدرس 1", callback_data="seera_1")],
@@ -256,9 +240,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("⬅️ رجوع لقائمة السيرة", callback_data="seera_menu")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="🎧 **قائمة دروس السيرة النبوية الصوتية:**\nاختاري الدرس المطلوب للاستماع إليه:", reply_markup=reply_markup, parse_mode="Markdown")
+        await context.bot.send_message(chat_id=chat_id, text="🎧 **قائمة دروس السيرة النبوية الصوتية:**\nاختاري الدرس المطلوب للاستماع إليه:", reply_markup=reply_markup, parse_mode="Markdown")
 
-    # --- القائمة الرئيسية العامة ---
     elif data == "main_menu":
         keyboard = [
             [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
@@ -266,9 +249,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("💬 تواصل مع الإدارة", callback_data="contact_admin")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="أهلاً بكِ مجدداً في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text="أهلاً بكِ مجدداً في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
 
-    # --- قائمة تحفة الأطفال ---
     elif data == "tuhafa_menu":
         keyboard = [
             [InlineKeyboardButton("📖 فتح الأقفال", callback_data="book_1")],
@@ -277,39 +259,34 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("⬅️ رجوع للقائمة الرئيسية", callback_data="main_menu")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="اختر الكتاب المطلوب من تحفة الأطفال:", reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text="اختر الكتاب المطلوب من تحفة الأطفال:", reply_markup=reply_markup)
         
-    # محتويات الكتاب الأول
     elif data == "book_1":
         keyboard = [[InlineKeyboardButton("📄 كتاب فتح الأقفال (PDF)", callback_data="book_1_pdf")]]
         for i in range(1, 20):
             keyboard.append([InlineKeyboardButton(f"🎧 التسجيل الصوتي {i}", callback_data=f"b1_lesson_{i}")])
         keyboard.append([InlineKeyboardButton("⬅️ رجوع للكتب", callback_data="tuhafa_menu")])
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="محتويات كتاب فتح الأقفال:", reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text="محتويات كتاب فتح الأقفال:", reply_markup=reply_markup)
 
-    # محتويات الكتاب الثاني
     elif data == "book_2":
         keyboard = [[InlineKeyboardButton("📄 كتاب منحة ذي الجلال (PDF)", callback_data="book_2_pdf")]]
         for i in range(1, 36):
             keyboard.append([InlineKeyboardButton(f"🎧 التسجيل الصوتي {i}", callback_data=f"b2_lesson_{i}")])
         keyboard.append([InlineKeyboardButton("⬅️ رجوع للكتب", callback_data="tuhafa_menu")])
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="محتويات كتاب منحة ذي الجلال:", reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text="محتويات كتاب منحة ذي الجلال:", reply_markup=reply_markup)
 
-    # محتويات الكتاب الثالث
     elif data == "book_3":
         keyboard = [[InlineKeyboardButton("📄 كتاب فتح الملك المتعال (PDF)", callback_data="book_3_pdf")]]
         for i in range(1, 13):
             keyboard.append([InlineKeyboardButton(f"🎧 التسجيل الصوتي {i}", callback_data=f"b3_lesson_{i}")])
         keyboard.append([InlineKeyboardButton("⬅️ رجوع للكتب", callback_data="tuhafa_menu")])
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await query.edit_message_text(text="محتويات كتاب فتح الملك المتعال:", reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text="محتويات كتاب فتح الملك المتعال:", reply_markup=reply_markup)
         
-    # معالجة إرسال الملفات أو التسجيلات
     elif data in FILE_IDS:
         file_id = FILE_IDS[data]
-        
         if "pdf" in data:
             if data == "seera_pdf":
                 await context.bot.send_document(chat_id=chat_id, document=file_id, caption="📖 تفضلي كتاب السيرة النبوية (PDF)")
@@ -320,7 +297,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "book_3_pdf": "كتاب فتح الملك المتعال"
                 }
                 await context.bot.send_document(chat_id=chat_id, document=file_id, caption=f"📖 تفضلي {book_names.get(data, 'الكتاب')}")
-        
         elif data.startswith("seera_"):
             if "takmela" in data:
                 d_num = data.replace("seera_", "").replace("_takmela", "")
@@ -329,7 +305,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 d_num = data.replace("seera_", "")
                 caption_text = f"📜 السيرة النبوية - الدرس {d_num}"
             await context.bot.send_voice(chat_id=chat_id, voice=file_id, caption=caption_text)
-        
         else:
             parts = data.split("_")
             book_num = parts[0].replace("b", "")
@@ -338,13 +313,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == '__main__':
     keep_alive()
-    
     application = ApplicationBuilder().token(TOKEN).build()
     
-    # تسجيل المعالجات بشكل منظم ونهائي
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CallbackQueryHandler(button_handler))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_message_to_admin))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    print("البوت يعمل الآن بسلاسة تامة...")
+    print("البوت يعمل بكامل طاقته...")
     application.run_polling()
