@@ -348,9 +348,10 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(TOKEN).build()
     
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CallbackQueryHandler(button_handler, pattern="^(?!contact_admin$).*"))
+    # تم تصحيح طريقة تسجيل الـ Handlers لضمان عمل كافة الأزرار بسلاسة
     application.add_handler(CallbackQueryHandler(contact_admin_start, pattern="^contact_admin$"))
+    application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_message_to_admin))
     
-    print("البوت يعمل الآن...")
+    print("البوت يعمل الآن بكفاءة...")
     application.run_polling()
