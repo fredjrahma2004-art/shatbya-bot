@@ -15,12 +15,9 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# جدول معرفات الملفات الكامل للكتب الثلاثة، كتاب السيرة، وتسجيلات السيرة النبوية
+# جدول معرفات الملفات الكامل
 FILE_IDS = {
-    # كتاب السيرة النبوية (PDF)
     "seera_pdf": "BQACAgQAAxkBAAICPWqL0NqcoYoRkEhFXJrL9heiSQ1lAAJRHAACsxSxUg_Jxp4rTzjiPQQ",
-
-    # الكتاب الأول: فتح الأقفال
     "book_1_pdf": "BQACAgIAAxkBAAN3anm0vFpU9DdtE7CIxsBTUZ8zur0AAtunAAIRI1hLNEyoGg-SS9o9BA",
     "b1_lesson_1": "CQACAgIAAxkBAAN4anm0vM5PGE9F5IC2q3nPbezlbB0AAlyJAAK_UAFJXRrTfhF53Hs9BA",
     "b1_lesson_2": "CQACAgIAAxkBAAN5anm0vI5Qw96xB6rZEY7IxAbeiyQAAoWDAALqfAhJ4b-1nX1sM9k9BA",
@@ -42,7 +39,6 @@ FILE_IDS = {
     "b1_lesson_18": "CQACAgIAAxkBAAOJanm0vMxrL5pVzJEIEusYkgRAcDQAAveSAAJ3mhlJ2jbIURWoG-89BA",
     "b1_lesson_19": "CQACAgIAAxkBAAOKanm0vPwgh5A7-B81kZudW5wjURYAAi-OAAK9XxlJy0j2r0nO7dw9BA",
 
-    # الكتاب الثاني: منحة ذي الجلال
     "book_2_pdf": "BQACAgQAAxkBAAPDannDwblPwsBVcYDWZENzrG5BIbcAAg4MAAJiF8lQEUOvW6-XrGk9BA",
     "b2_lesson_1": "CQACAgIAAxkBAAPEannDwQ6AAAFo8Yq6iJT7xhFK27-cAAIhkwACd5oZSQElzghzAAFJiz0E",
     "b2_lesson_2": "CQACAgIAAxkBAAPFannDwWVDwMZHylwW7fn7_j6JYGQAAgmNAALkuhlJH_t1wgNd8x09BA",
@@ -80,7 +76,6 @@ FILE_IDS = {
     "b2_lesson_34": "CQACAgIAAxkBAAPlannDwSKouFCDrE5okuS2dtg7HxUAAl-HAAL86RhJinbzszkrQ5E9BA",
     "b2_lesson_35": "CQACAgIAAxkBAAPmannDwVNEmopHtyEWbCEQ2cJbcZgAAgqPAAK9XxlJvB4KnaNA_1w9BA",
 
-    # الكتاب الثالث: فتح الملك المتعال
     "book_3_pdf": "BQACAgQAAxkBAAPnannDwZlQWUF3E72SbR_61ZyL_swAAgsMAAJiF8lQFFfBSJad3YA9BA",
     "b3_lesson_1": "CQACAgIAAxkBAAPoannDwRAJjWRRiiGgpZS2_Z9rNWoAAuOiAAIJjNFKgaxLoE9IxUo9BA",
     "b3_lesson_2": "CQACAgIAAxkBAAPpannDwSoghP4sT83x35ADSGd1AsIAAkapAAIJjNFKR4byK7kihng9BA",
@@ -95,7 +90,6 @@ FILE_IDS = {
     "b3_lesson_11": "CQACAgIAAxkBAAPyannDwae9DiMNc72JC-j8wEv8tHgAAr-YAAIn59BK5uxb3dNSWWM9BA",
     "b3_lesson_12": "CQACAgIAAxkBAAPzannDwW-8jd8IbotuOVYpsFzcmQ4AAjSQAAJpI9BKSiGa2-6lqN89BA",
 
-    # 📜 دروس السيرة النبوية
     "seera_1": "CQACAgIAAxkBAAIBz2qLC47A2K4YS7_zf7vGBX97gl_fAAJmmwAC9ZrISqvv_uvafkIkPQQ",
     "seera_2": "CQACAgIAAxkBAAIB0GqLC44wpIYuN1BR809sHmY8Ia0eAAJbnQACcOv5SoXGax_RU-4SPQQ",
     "seera_3": "CQACAgIAAxkBAAIB0WqLC46F1iF60EqVzuleJwh60mDuAAL8nAACtNwAAUsxwId3kZx60j0E",
@@ -155,8 +149,10 @@ def keep_alive():
     t.start()
 # --------------------------------------------------
 
-# 1. أمر البداية (يعرض الأزرار الثلاثة الرئيسية)
+# 1. أمر البداية
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['waiting_for_message'] = False
+    
     keyboard = [
         [InlineKeyboardButton("📜 السيرة النبوية", callback_data="seera_menu")],
         [InlineKeyboardButton("📚 تحفة الأطفال", callback_data="tuhafa_menu")],
@@ -165,18 +161,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("أهلاً بكِ في مقرأة الشّاطبية 🌸\nيرجى اختيار القسم المطلوب من القائمة أدناه:", reply_markup=reply_markup)
 
-# 2. دالة تشغيل التواصل عند الضغط على الزر
-async def contact_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    
-    await query.message.reply_text(
-        "أهلاً وسهلاً بكِ غاليتي 🌸\nأكتبي استفساركِ أو سؤالكِ الآن:"
-    )
-    # تفعيل حالة انتظار رسالة الطالبة
-    context.user_data['waiting_for_message'] = True
-
-# 3. معالج رسائل الطالبات وإرسالها لمجموعة المشرفات
+# 2. معالج رسائل الطالبات (يستقبل الاستفسار فقط إذا كانت الحالة مفعلة)
 async def forward_message_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get('waiting_for_message', False):
         user = update.message.from_user
@@ -199,14 +184,23 @@ async def forward_message_to_admin(update: Update, context: ContextTypes.DEFAULT
             
         context.user_data['waiting_for_message'] = False
 
-# 4. معالج الأزرار والقوائم المتداخلة
+# 3. معالج الأزرار الموحد (يعالج كل الأزرار بدقة واستجابة فورية)
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    await query.answer()  # استجابة سريعة لفك تجميد الزر فوراً
     
     data = query.data
     chat_id = query.message.chat_id
     
+    # إذا ضغطت على زر التواصل
+    if data == "contact_admin":
+        context.user_data['waiting_for_message'] = True
+        await query.message.reply_text("أهلاً وسهلاً بكِ غاليتي 🌸\nأكتبي استفساركِ أو سؤالكِ الآن:")
+        return
+
+    # لأي زر آخر، نلغي حالة انتظار الرسالة ونتابع التصفح طبيعياً
+    context.user_data['waiting_for_message'] = False
+
     # --- القائمة الرئيسية للسيرة النبوية ---
     if data == "seera_menu":
         keyboard = [
@@ -312,7 +306,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="محتويات كتاب فتح الملك المتعال:", reply_markup=reply_markup)
         
-    # معالجة إرسال الملفات أو التسجيلات بناءً على مطابقتها لـ FILE_IDS
+    # معالجة إرسال الملفات أو التسجيلات
     elif data in FILE_IDS:
         file_id = FILE_IDS[data]
         
@@ -347,11 +341,10 @@ if __name__ == '__main__':
     
     application = ApplicationBuilder().token(TOKEN).build()
     
+    # تسجيل المعالجات بشكل منظم ونهائي
     application.add_handler(CommandHandler('start', start))
-    # تم تصحيح طريقة تسجيل الـ Handlers لضمان عمل كافة الأزرار بسلاسة
-    application.add_handler(CallbackQueryHandler(contact_admin_start, pattern="^contact_admin$"))
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_message_to_admin))
     
-    print("البوت يعمل الآن بكفاءة...")
+    print("البوت يعمل الآن بسلاسة تامة...")
     application.run_polling()
